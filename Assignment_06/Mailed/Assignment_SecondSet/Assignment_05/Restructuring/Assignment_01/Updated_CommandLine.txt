@@ -1,0 +1,19 @@
+Client Side
+
+cl.exe /c /EHsc Client.cpp
+
+link.exe Client.obj User32.lib GDi32.lib /MACHINE:X86 /SUBSYSTEM:WINDOWS
+
+Server Side
+cl.exe /c /EHsc Server.cpp
+
+link.exe Server.obj User32.lib GDI32.lib /MACHINE:X86 /DLL /DEF:Server.def
+
+For OpenGL freeglut
+
+Compiler
+cl.exe /c /EHsc /I C:\Users\Ganesha\Desktop\Practice\MyCodes\Assignment_05\Restructuring\Assignment_01\Demo\CommandLine\freeglut\include OGL.cpp
+
+
+Linker
+link.exe OGL.obj /LIBPATH:C:\Users\Ganesha\Desktop\Practice\MyCodes\Assignment_05\Restructuring\Assignment_01\Demo\CommandLine\freeglut\lib\x64\ freeglut.lib OpenGL32.lib USER32.lib GDI32.lib /MACHINE:x64
