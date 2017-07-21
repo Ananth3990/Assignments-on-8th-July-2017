@@ -1,0 +1,7 @@
+1) Using glFrustum()
+
+2) Using glOrtho()
+
+3)Using glOrtho2D()
+
+4) Using gluPerspective()
