@@ -1,0 +1,5 @@
+To keep circle and triangle as it is on resize.
+
+Problem:
+
+gluPersPective and glFrustum dosent work.
