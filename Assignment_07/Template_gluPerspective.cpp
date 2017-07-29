@@ -182,7 +182,7 @@ void resize(UINT width, UINT height)
 	glViewport(0, 0, (GLsizei)width, (GLsizei)height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(45.0f,(GLfloat)width/(GLfloat)height,1.0f,1.0f);
+	gluPerspective(0.0f, (GLfloat)width / (GLfloat)height, 0.1f, 100.0f);
 }
 
 void ToggleFullScreen(void)
