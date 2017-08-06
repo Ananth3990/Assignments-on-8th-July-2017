@@ -7,34 +7,6 @@
 
 static const float pi = 3.14285714286f;
 
-void AllocateMatrix(float **arr,int row,int col)
-{
-	*arr = (float*)malloc(row*col* sizeof(float));
-}
-
-void LoadIdentityMatrix(float **arr,int row,int col) //Make passed matrix to Identity Matrix
-{
-	for (int i = 0; i<(row*col); i++)
-	{
-		if (i%5==0)
-		{
-			*((*arr)+i) = 1.0f;
-		}
-		else
-		{
-			*((*arr) + i) = 0.0f;
-		}
-	}
-}
-
-void FillMatrix(float **fill,float *values, int row, int col)
-{
-	for (int i = 0; i<(row*col); i++)
-	{
-		*((*fill) + i) = *(values + i);
-	}
-}
-
 void PrintMatrix(float **arr, int row, int col)
 {
 	int i;
@@ -45,15 +17,36 @@ void PrintMatrix(float **arr, int row, int col)
 	}
 }
 
-void TransposeMatrix(float **arr,int row,int col)
+void AllocateMatrix(float **arr, int row, int col)
 {
-	int i,j,z;
+	*arr = (float*)malloc(row*col * sizeof(float));
+}
+
+void LoadIdentityMatrix(float **arr, int row, int col)
+{
+	AllocateMatrix(&(*arr), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
+	for (int i = 0; i<(row*col); i++)
+	{
+		if (i % 5 == 0)
+		{
+			*((*arr) + i) = 1.0f;
+		}
+		else
+		{
+			*((*arr) + i) = 0.0f;
+		}
+	}
+}
+
+void TransposeMatrix(float **arr, int row, int col)
+{
+	int i, j, z;
 	float *dup = NULL;
 	int index1, index2;
-	AllocateMatrix(&dup,row, col);
-	for (i=0;i<row;i++)
+	AllocateMatrix(&dup, row, col);
+	for (i = 0; i<row; i++)
 	{
-		for (j=0;j<col;j++)
+		for (j = 0; j<col; j++)
 		{
 			//index in original matrix
 			index1 = i*col + j;
@@ -61,7 +54,7 @@ void TransposeMatrix(float **arr,int row,int col)
 			//index in transposed matrix
 			index2 = j*row + i;
 
-			*(dup + index2) = *((*arr)+index1);
+			*(dup + index2) = *((*arr) + index1);
 		}
 	}
 
@@ -71,21 +64,37 @@ void TransposeMatrix(float **arr,int row,int col)
 	}
 }
 
-void TranslationMatrix(float x, float y, float z,float **mat)
-{ 
+/* //Done by Atharva
+void TranslationMatrix(float x, float y, float z, float **mat)
+{
+void AllocateMatrix(float **arr, int row, int col);
+void LoadIdentityMatrix(float **arr, int row, int col);
+void TransposeMatrix(float **arr, int row, int col);
+
+AllocateMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
+LoadIdentityMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
+*((*mat) + 12) = x;
+*((*mat) + 13) = y;
+*((*mat) + 14) = z;
+//TransposeMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
+}
+*/
+
+void TranslationMatrix(float x, float y, float z, float **mat)
+{
 	void AllocateMatrix(float **arr, int row, int col);
 	void LoadIdentityMatrix(float **arr, int row, int col);
 	void TransposeMatrix(float **arr, int row, int col);
 
 	AllocateMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
-	LoadIdentityMatrix(&(*mat),NUMBER_OF_ROWS,NUMBER_OF_COLOUMNS);
-	*((*mat) + 3) = x;
-	*((*mat) + 7) = y;
-	*((*mat) + 11) = z;
-	TransposeMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
+	LoadIdentityMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
+	*((*mat) + 12) = x;
+	*((*mat) + 13) = y;
+	*((*mat) + 14) = z;
+	//TransposeMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS); //Transpose is done by glLoadMatrix()
 }
 
-void ScalingMatrix(float x,float y,float z,float **mat)
+void ScalingMatrix(float x, float y, float z, float **mat)
 {
 	void AllocateMatrix(float **arr, int row, int col);
 	void LoadIdentityMatrix(float **arr, int row, int col);
@@ -94,22 +103,22 @@ void ScalingMatrix(float x,float y,float z,float **mat)
 	AllocateMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
 	LoadIdentityMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
 
-	for (int i=0;i<16;i++)
+	for (int i = 0; i<16; i++)
 	{
-		if (i%5==0)
+		if (i % 5 == 0)
 		{
-			if (i==15)
+			if (i == 15)
 			{
-				*((*mat)+i) = 1.0f;
+				*((*mat) + i) = 1.0f;
 			}
 			else
 			{
-				if (i==0)
+				if (i == 0)
 				{
 					*((*mat) + i) = x;
 				}
 
-				if (i==5)
+				if (i == 5)
 				{
 					*((*mat) + i) = y;
 				}
@@ -125,14 +134,22 @@ void ScalingMatrix(float x,float y,float z,float **mat)
 			*((*mat) + i) = 0.0f;
 		}
 	}
-	TransposeMatrix(&(*mat),NUMBER_OF_ROWS,NUMBER_OF_COLOUMNS);
 }
 
-void RotationMatrix_x(float angle_in_degree,float **mat)
+void MultiplyMatrixbyFactor(float **mat, float factor, int row, int col)
+{
+	for (int i = 0; i<(row*col); i++)
+	{
+		*((*mat) + i) = *((*mat) + i) * factor;
+	}
+}
+
+void RotationMatrix_x(float angle_in_degree, float factor, float **mat)
 {
 	void AllocateMatrix(float **arr, int row, int col);
 	void LoadIdentityMatrix(float **arr, int row, int col);
 	void TransposeMatrix(float **arr, int row, int col);
+	void MultiplyMatrixbyFactor(float **mat, float factor, int row, int col);
 
 	float angle_in_radian = 0.0f;
 	angle_in_radian = angle_in_degree*(pi / 180.0f);
@@ -140,31 +157,32 @@ void RotationMatrix_x(float angle_in_degree,float **mat)
 	AllocateMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
 	LoadIdentityMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
 
-	for (int i=0;i<NUMBER_OF_COLOUMNS*NUMBER_OF_ROWS;i++)
+	for (int i = 0; i<NUMBER_OF_COLOUMNS*NUMBER_OF_ROWS; i++)
 	{
-		if (i==5 ||i==10)
+		if (i == 5 || i == 10)
 		{
 			*((*mat) + i) = cosf(angle_in_radian);
 		}
 
-		if (i==6)
+		if (i == 6)
 		{
-			*((*mat) + i) = -sinf(angle_in_radian);
+			*((*mat) + i) = sinf(angle_in_radian);
 		}
 
 		if (i == 9)
 		{
-			*((*mat) + i) = sinf(angle_in_radian);
+			*((*mat) + i) = -sinf(angle_in_radian);
 		}
 	}
-	TransposeMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
+	MultiplyMatrixbyFactor(&(*mat), factor, NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
 }
 
-void RotationMatrix_y(float angle_in_degree, float **mat)
+void RotationMatrix_y(float angle_in_degree, float factor, float **mat)
 {
 	void AllocateMatrix(float **arr, int row, int col);
 	void LoadIdentityMatrix(float **arr, int row, int col);
 	void TransposeMatrix(float **arr, int row, int col);
+	void MultiplyMatrixbyFactor(float **mat, float factor, int row, int col);
 
 	float angle_in_radian = 0.0f;
 	angle_in_radian = angle_in_degree*(pi / 180.0f);
@@ -181,22 +199,23 @@ void RotationMatrix_y(float angle_in_degree, float **mat)
 
 		if (i == 8)
 		{
-			*((*mat) + i) = -sinf(angle_in_radian);
+			*((*mat) + i) = sinf(angle_in_radian);
 		}
 
 		if (i == 2)
 		{
-			*((*mat) + i) = sinf(angle_in_radian);
+			*((*mat) + i) = -sinf(angle_in_radian);
 		}
 	}
-	TransposeMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
+	MultiplyMatrixbyFactor(&(*mat), factor, NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
 }
 
-void RotationMatrix_z(float angle_in_degree, float **mat)
+void RotationMatrix_z(float angle_in_degree, float factor, float **mat)
 {
 	void AllocateMatrix(float **arr, int row, int col);
 	void LoadIdentityMatrix(float **arr, int row, int col);
 	void TransposeMatrix(float **arr, int row, int col);
+	void MultiplyMatrixbyFactor(float **mat, float factor, int row, int col);
 
 	float angle_in_radian = 0.0f;
 	angle_in_radian = angle_in_degree*(pi / 180.0f);
@@ -213,17 +232,17 @@ void RotationMatrix_z(float angle_in_degree, float **mat)
 
 		if (i == 1)
 		{
-			*((*mat) + i) = -sinf(angle_in_radian);
+			*((*mat) + i) = sinf(angle_in_radian);
 		}
 
 		if (i == 4)
 		{
-			*((*mat) + i) = sinf(angle_in_radian);
+			*((*mat) + i) = -sinf(angle_in_radian);
 		}
 	}
-	TransposeMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
+	//TransposeMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS); //Transpose required
+	MultiplyMatrixbyFactor(&(*mat), factor, NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
 }
-
 
 int main()
 {
@@ -234,9 +253,9 @@ int main()
 	void FillMatrix(float **fill, float *values, int row, int col); //Of No use
 	void TranslationMatrix(float x, float y, float z, float **mat);
 	void ScalingMatrix(float x, float y, float z, float **mat);
-	void RotationMatrix_x(float angle_in_degree, float **mat);
-	void RotationMatrix_y(float angle_in_degree, float **mat);
-	void RotationMatrix_z(float angle_in_degree, float **mat);
+	void RotationMatrix_x(float angle_in_degree,float factor, float **mat);
+	void RotationMatrix_y(float angle_in_degree,float factor, float **mat);
+	void RotationMatrix_z(float angle_in_degree, float factor,float **mat);
 
 	float *translation_matrix = NULL;
 	TranslationMatrix(-3.0f,-3.0f,-3.0f,&translation_matrix);
@@ -245,26 +264,28 @@ int main()
 	printf("------------------------------\n");
 
 	float *scaling_matrix = NULL;
-	ScalingMatrix(0.75f,0.75f,0.75f,&scaling_matrix);
-	PrintMatrix(&scaling_matrix,4,4);
+	ScalingMatrix(0.75f, 0.75f, 0.75f, &scaling_matrix);
+	PrintMatrix(&scaling_matrix, 4, 4);
 
 	printf("------------------------------\n");
 
 	float *rotation_x = NULL;
-	RotationMatrix_x(30.0f,&rotation_x);
-	PrintMatrix(&rotation_x,4,4);
+	RotationMatrix_x(30.0f, 1.0f,&rotation_x);
+	PrintMatrix(&rotation_x, 4, 4);
 
 	printf("------------------------------\n");
 
 	float *rotation_y = NULL;
-	RotationMatrix_y(60.0f,&rotation_y);
-	PrintMatrix(&rotation_y,4,4);
+	RotationMatrix_y(30.0f,1.0f,&rotation_y);
+	PrintMatrix(&rotation_y, 4, 4);
 
 	printf("------------------------------\n");
 
 	float *rotation_z = NULL;
-	RotationMatrix_z(20.0f,&rotation_z);
-	PrintMatrix(&rotation_z,4,4);
+	RotationMatrix_z(30.0f,1.0f,&rotation_z);
+	PrintMatrix(&rotation_z, 4, 4);
+
+	printf("------------------------------\n");
 
 	return 0;
 }

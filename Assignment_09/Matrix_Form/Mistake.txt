@@ -1,0 +1,14 @@
+//Done by Atharva
+void TranslationMatrix(GLfloat x, GLfloat y, GLfloat z, GLfloat **mat)
+{
+	void AllocateMatrix(GLfloat **arr, GLint row, GLint col);
+	void LoadIdentityMatrix(GLfloat **arr, GLint row, GLint col);
+	void TransposeMatrix(GLfloat **arr, GLint row, GLint col);
+
+	AllocateMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
+	LoadIdentityMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
+	*((*mat) + 12) = x;
+	*((*mat) + 13) = y;
+	*((*mat) + 14) = z;
+	//TransposeMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
+}

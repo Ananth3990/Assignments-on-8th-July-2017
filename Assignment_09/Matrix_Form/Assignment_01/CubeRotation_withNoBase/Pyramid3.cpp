@@ -31,7 +31,6 @@ static const GLfloat pi = 3.14285714286f;
 
 GLfloat *translationMatrix = NULL;
 GLfloat *identityMatrix = NULL;
-GLfloat *scalingMatrix = NULL;
 
 LRESULT CALLBACK AcCallBack(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
 
@@ -40,8 +39,9 @@ void AllocateMatrix(GLfloat **arr, GLint row, GLint col)
 	*arr = (GLfloat*)malloc(row*col * sizeof(GLfloat));
 }
 
-void LoadIdentityMatrix(GLfloat **arr, GLint row, GLint col) //Make passed matrix to Identity Matrix
+void LoadIdentityMatrix(GLfloat **arr, GLint row, GLint col)
 {
+	AllocateMatrix(&(*arr), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
 	for (GLint i = 0; i<(row*col); i++)
 	{
 		if (i % 5 == 0)
@@ -81,6 +81,22 @@ void TransposeMatrix(GLfloat **arr, GLint row, GLint col)
 	}
 }
 
+/* //Done by Atharva
+void TranslationMatrix(GLfloat x, GLfloat y, GLfloat z, GLfloat **mat)
+{
+void AllocateMatrix(GLfloat **arr, GLint row, GLint col);
+void LoadIdentityMatrix(GLfloat **arr, GLint row, GLint col);
+void TransposeMatrix(GLfloat **arr, GLint row, GLint col);
+
+AllocateMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
+LoadIdentityMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
+*((*mat) + 12) = x;
+*((*mat) + 13) = y;
+*((*mat) + 14) = z;
+//TransposeMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
+}
+*/
+
 void TranslationMatrix(GLfloat x, GLfloat y, GLfloat z, GLfloat **mat)
 {
 	void AllocateMatrix(GLfloat **arr, GLint row, GLint col);
@@ -89,10 +105,10 @@ void TranslationMatrix(GLfloat x, GLfloat y, GLfloat z, GLfloat **mat)
 
 	AllocateMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
 	LoadIdentityMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
-	*((*mat) + 3) = x;
-	*((*mat) + 7) = y;
-	*((*mat) + 11) = z;
-	TransposeMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
+	*((*mat) + 12) = x;
+	*((*mat) + 13) = y;
+	*((*mat) + 14) = z;
+	//TransposeMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS); //Transpose is done by glLoadMatrix()
 }
 
 void ScalingMatrix(GLfloat x, GLfloat y, GLfloat z, GLfloat **mat)
@@ -135,14 +151,22 @@ void ScalingMatrix(GLfloat x, GLfloat y, GLfloat z, GLfloat **mat)
 			*((*mat) + i) = 0.0f;
 		}
 	}
-	TransposeMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
 }
 
-void RotationMatrix_x(GLfloat angle_in_degree, GLfloat **mat)
+void MultiplyMatrixbyFactor(GLfloat **mat, GLfloat factor, GLint row, GLint col)
+{
+	for (GLint i = 0; i<(row*col); i++)
+	{
+		*((*mat) + i) = *((*mat) + i) * factor;
+	}
+}
+
+void RotationMatrix_x(GLfloat angle_in_degree, GLfloat factor, GLfloat **mat)
 {
 	void AllocateMatrix(GLfloat **arr, GLint row, GLint col);
 	void LoadIdentityMatrix(GLfloat **arr, GLint row, GLint col);
 	void TransposeMatrix(GLfloat **arr, GLint row, GLint col);
+	void MultiplyMatrixbyFactor(GLfloat **mat, GLfloat factor, GLint row, GLint col);
 
 	GLfloat angle_in_radian = 0.0f;
 	angle_in_radian = angle_in_degree*(pi / 180.0f);
@@ -159,22 +183,23 @@ void RotationMatrix_x(GLfloat angle_in_degree, GLfloat **mat)
 
 		if (i == 6)
 		{
-			*((*mat) + i) = -sinf(angle_in_radian);
+			*((*mat) + i) = sinf(angle_in_radian);
 		}
 
 		if (i == 9)
 		{
-			*((*mat) + i) = sinf(angle_in_radian);
+			*((*mat) + i) = -sinf(angle_in_radian);
 		}
 	}
-	TransposeMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
+	MultiplyMatrixbyFactor(&(*mat), factor, NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
 }
 
-void RotationMatrix_y(GLfloat angle_in_degree, GLfloat **mat)
+void RotationMatrix_y(GLfloat angle_in_degree, GLfloat factor, GLfloat **mat)
 {
 	void AllocateMatrix(GLfloat **arr, GLint row, GLint col);
 	void LoadIdentityMatrix(GLfloat **arr, GLint row, GLint col);
 	void TransposeMatrix(GLfloat **arr, GLint row, GLint col);
+	void MultiplyMatrixbyFactor(GLfloat **mat, GLfloat factor, GLint row, GLint col);
 
 	GLfloat angle_in_radian = 0.0f;
 	angle_in_radian = angle_in_degree*(pi / 180.0f);
@@ -191,22 +216,23 @@ void RotationMatrix_y(GLfloat angle_in_degree, GLfloat **mat)
 
 		if (i == 8)
 		{
-			*((*mat) + i) = -sinf(angle_in_radian);
+			*((*mat) + i) = sinf(angle_in_radian);
 		}
 
 		if (i == 2)
 		{
-			*((*mat) + i) = sinf(angle_in_radian);
+			*((*mat) + i) = -sinf(angle_in_radian);
 		}
 	}
-	TransposeMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
+	MultiplyMatrixbyFactor(&(*mat), factor, NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
 }
 
-void RotationMatrix_z(GLfloat angle_in_degree, GLfloat **mat)
+void RotationMatrix_z(GLfloat angle_in_degree, GLfloat factor, GLfloat **mat)
 {
 	void AllocateMatrix(GLfloat **arr, GLint row, GLint col);
 	void LoadIdentityMatrix(GLfloat **arr, GLint row, GLint col);
 	void TransposeMatrix(GLfloat **arr, GLint row, GLint col);
+	void MultiplyMatrixbyFactor(GLfloat **mat, GLfloat factor, GLint row, GLint col);
 
 	GLfloat angle_in_radian = 0.0f;
 	angle_in_radian = angle_in_degree*(pi / 180.0f);
@@ -223,15 +249,16 @@ void RotationMatrix_z(GLfloat angle_in_degree, GLfloat **mat)
 
 		if (i == 1)
 		{
-			*((*mat) + i) = -sinf(angle_in_radian);
+			*((*mat) + i) = sinf(angle_in_radian);
 		}
 
 		if (i == 4)
 		{
-			*((*mat) + i) = sinf(angle_in_radian);
+			*((*mat) + i) = -sinf(angle_in_radian);
 		}
 	}
-	TransposeMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
+	//TransposeMatrix(&(*mat), NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS); //Transpose required
+	MultiplyMatrixbyFactor(&(*mat), factor, NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
 }
 
 GLfloat* GetTranslationMatrix()
@@ -254,19 +281,16 @@ void SetIdentityMatrix(GLfloat **mat)
 	identityMatrix = *mat;
 }
 
-void SetScalingMatrix(GLfloat **mat)
-{
-	scalingMatrix = *mat;
-}
-
-GLfloat* GetScalingMatrix()
-{
-	return scalingMatrix;
-}
-
 void update(void)
 {
-	anglePyramid = anglePyramid + 0.1f;
+	if (gbFullScreen == true)
+	{
+		anglePyramid = anglePyramid + 0.15f;
+	}
+	else
+	{
+		anglePyramid = anglePyramid + 0.1f;
+	}
 
 	if (anglePyramid >= 360.0f)
 	{
@@ -274,13 +298,13 @@ void update(void)
 	}
 }
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
+GLint WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, GLint iCmdShow)
 {
 	void initialize(void);
 	void uninitialize(void);
 	void display(void);
 	void update(void);
-	void resize(int, int);
+	void resize(GLint,GLint);
 
 	WNDCLASSEX ac;
 	HWND hwnd;
@@ -354,7 +378,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 		}
 	}
 	uninitialize();
-	return ((int)msg.wParam);
+	return ((GLint)msg.wParam);
 }
 
 void initialize(void)
@@ -362,10 +386,6 @@ void initialize(void)
 	void resize(GLint width, GLint height);
 	void SetTranslationMatrix(GLfloat **mat);
 	void SetIdentityMatrix(GLfloat **mat);
-	void SetScalingMatrix(GLfloat **mat);
-	void ScalingMatrix(GLfloat x, GLfloat y, GLfloat z, GLfloat **mat);
-	void TranslationMatrix(GLfloat x, GLfloat y, GLfloat z, GLfloat **mat);
-	void LoadIdentityMatrix(GLfloat **arr, GLint row, GLint col);
 
 	PIXELFORMATDESCRIPTOR pfd;
 	GLint iPixelFormatIndex;
@@ -419,27 +439,19 @@ void initialize(void)
 	glShadeModel(GL_SMOOTH);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-
 	//glLoadIdentity();
 	GLfloat *identitymatrix = NULL;
-	AllocateMatrix(&identitymatrix, NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
 	LoadIdentityMatrix(&identitymatrix, NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
 	SetIdentityMatrix(&identitymatrix);
 
 	//glTranslatef(0.0f, 0.0f, -6.0f);
 	GLfloat *translationMatrix = NULL;
-	AllocateMatrix(&translationMatrix, NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
 	TranslationMatrix(0.0f, 0.0f, -6.0f, &translationMatrix);
 	SetTranslationMatrix(&translationMatrix);
 
-	//glScalef(0.75f,0.75f,0.75f);
-	GLfloat *scalingMatrix = NULL;
-	AllocateMatrix(&scalingMatrix, NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
-	ScalingMatrix(0.75f,0.75f,0.75f,&scalingMatrix);
-	SetScalingMatrix(&scalingMatrix);
-
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	resize(WIN_WIDTH, WIN_HEIGHT);
+
 }
 
 void uninitialize(void)
@@ -504,9 +516,9 @@ void ToggleFullScreen(void)
 
 void display(void)
 {
-	void RotationMatrix_z(GLfloat angle_in_degree, GLfloat **mat);
-	void RotationMatrix_z(GLfloat angle_in_degree, GLfloat **mat);
-	void RotationMatrix_z(GLfloat angle_in_degree, GLfloat **mat);
+	void RotationMatrix_z(GLfloat angle_in_degree,GLfloat factor, GLfloat **mat);
+	void RotationMatrix_z(GLfloat angle_in_degree,GLfloat factor, GLfloat **mat);
+	void RotationMatrix_z(GLfloat angle_in_degree,GLfloat factor, GLfloat **mat);
 	void ScalingMatrix(GLfloat x, GLfloat y, GLfloat z, GLfloat **mat);
 	void TranslationMatrix(GLfloat x, GLfloat y, GLfloat z, GLfloat **mat);
 	GLfloat* GetTranslationMatrix();
@@ -517,9 +529,8 @@ void display(void)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadMatrixf(GetIdentityMatrix());
 	glMultMatrixf(GetTranslationMatrix());
-	glMultMatrixf(GetScalingMatrix());
 
-	
+	/*
 	//glRotatef(anglePyramid, 1.0f, 1.0f, 1.0f);
 	GLfloat *rotationmatrix_x = NULL;
 	AllocateMatrix(&rotationmatrix_x, NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
@@ -527,7 +538,7 @@ void display(void)
 
 	GLfloat *rotationmatrix_y = NULL;
 	AllocateMatrix(&rotationmatrix_y, NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
-	RotationMatrix_y(anglePyramid, &rotationmatrix_y);
+	RotationMatrix_y(anglePyramid,&rotationmatrix_y);
 
 	GLfloat *rotationmatrix_z = NULL;
 	AllocateMatrix(&rotationmatrix_z, NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
@@ -536,14 +547,13 @@ void display(void)
 	glMultMatrixf(rotationmatrix_x);
 	glMultMatrixf(rotationmatrix_y);
 	glMultMatrixf(rotationmatrix_z);
-
-	/*
+	*/
+	
 	//glRotatef(anglePyramid, 0.0f, 1.0f, 0.0f);
 	GLfloat *rotationmatrix_y = NULL;
 	AllocateMatrix(&rotationmatrix_y, NUMBER_OF_ROWS, NUMBER_OF_COLOUMNS);
-	RotationMatrix_y(anglePyramid, &rotationmatrix_y);
+	RotationMatrix_y(anglePyramid,1.0f,&rotationmatrix_y);
 	glMultMatrixf(rotationmatrix_y);
-	*/
 
 	/*
 	//glRotatef(anglePyramid, 1.0f, 0.0f, 0.0f);
@@ -570,49 +580,70 @@ void display(void)
 	glMultMatrixf(rotationmatrix_y);
 	*/
 
-	glBegin(GL_QUADS);
+	glBegin(GL_TRIANGLES);
 
-	//Bottom face
-	glColor3f(0.0f,0.0f,1.0f);
-	glVertex3f(-1.0f,-1.0f,1.0f);
-	glVertex3f(1.0f, -1.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, -1.0f);
-	glVertex3f(-1.0f, -1.0f, -1.0f);
+	//Front face
+	glColor3f(1.0f, 0.0f, 0.0f); 
+	glVertex3f(0.0f, 1.0f, 0.0f); //apex
+
+	glColor3f(0.0f, 1.0f, 0.0f); 
+	glVertex3f(-1.0f, -1.0f, 1.0f); //left corner of front face
+
+	glColor3f(0.0f, 0.0f, 1.0f); 
+	glVertex3f(1.0f, -1.0f, 1.0f); //right corner of front face
+
+	 //Right Face
+	glColor3f(1.0f, 0.0f, 0.0f); 
+	glVertex3f(0.0f, 1.0f, 0.0f); //apex
+
+	glColor3f(0.0f, 0.0f, 1.0f);
+	glVertex3f(1.0f, -1.0f, 1.0f); //left corner of Right face
+
+	glColor3f(0.0f, 1.0f, 0.0f); 
+	glVertex3f(1.0f, -1.0f, -1.0f); //right corner of Right face
 
 	//Back face
-	glColor3f(0.0f, 1.0f, 0.0f);
-	glVertex3f(1.0f, 1.0f, -1.0f);
-	glVertex3f(1.0f, 1.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, -1.0f);
+	glColor3f(1.0f, 0.0f, 0.0f);
+	glVertex3f(0.0f, 1.0f, 0.0f); //apex
 
-	//Right Face
-	glColor3f(0.0f, 1.0f, 1.0f);
-	glVertex3f(1.0f, 1.0f, -1.0f);
-	glVertex3f(-1.0f, 1.0f, -1.0f);
-	glVertex3f(-1.0f, -1.0f, -1.0f);
-	glVertex3f(1.0f, -1.0f, -1.0f);
+	glColor3f(0.0f, 1.0f, 0.0f);
+	glVertex3f(1.0f, -1.0f, -1.0f); //left corner of Back face
+
+	glColor3f(0.0f, 0.0f, 1.0f);
+	glVertex3f(-1.0f, -1.0f, -1.0f); //right corner of Back face
 
 	//Left Face
-	glColor3f(1.0f, 1.0f, 0.0f);
-	glVertex3f(-1.0f, 1.0f, -1.0f);
-	glVertex3f(-1.0f, 1.0f, 1.0f);
-	glVertex3f(-1.0f, -1.0f, 1.0f);
-	glVertex3f(-1.0f, -1.0f, -1.0f);
-
-	//Front Face
-	glColor3f(0.75f,0.75f,0.75f);
-	glVertex3f(1.0f, 1.0f, 1.0f);
-	glVertex3f(-1.0f, 1.0f, 1.0f);
-	glVertex3f(-1.0f, -1.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, 1.0f);
-
-	//Top Face
 	glColor3f(1.0f, 0.0f, 0.0f);
-	glVertex3f(1.0f, 1.0f, 1.0f);
-	glVertex3f(-1.0f, 1.0f, 1.0f);
-	glVertex3f(-1.0f, 1.0f, -1.0f);
-	glVertex3f(1.0f, 1.0f, -1.0f);
+	glVertex3f(0.0f, 1.0f, 0.0f); //apex
+
+	glColor3f(0.0f, 0.0f, 1.0f);
+	glVertex3f(-1.0f, -1.0f, -1.0f); //left corner of Back face
+
+	glColor3f(0.0f, 1.0f, 0.0f);
+	glVertex3f(-1.0f, -1.0f, 1.0f); //right corner of Back face
+
+	/*
+	//Back face
+	glColor3f(1.0f, 0.0f, 0.0f); 
+	glVertex3f(0.0f, 1.0f, 0.0f); //apex
+
+	glColor3f(0.0f, 0.0f, 1.0f);
+	glVertex3f(1.0f, -1.0f, -1.0f); //left corner of Back face
+
+	glColor3f(0.0f, 0.0f, 1.0f); 
+	glVertex3f(-1.0f, -1.0f, -1.0f); //right corner of Back face
+
+    //Left Face
+	glColor3f(1.0f, 0.0f, 0.0f); 
+	glVertex3f(0.0f, 1.0f, 0.0f); //apex
+
+	glColor3f(0.0f, 1.0f, 0.0f);
+	glVertex3f(-1.0f, -1.0f, -1.0f); //left corner of Back face
+
+	glColor3f(0.0f, 0.0f, 1.0f); 
+	glVertex3f(-1.0f, -1.0f, 1.0f); //right corner of Back face
+	*/
+
 	glEnd();
 
 	SwapBuffers(ghdc);
